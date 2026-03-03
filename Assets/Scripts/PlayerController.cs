@@ -5,7 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private PlayerStateManager stateManager;
-
+    private GameObject cam;
 
     //adjustables
     [SerializeField] float yawLookSensitivity;
@@ -19,9 +19,12 @@ public class PlayerController : MonoBehaviour
 
     //movment vectors
     private Vector3 targetDir;
+    private Quaternion lookRot;
 
     private float xLookAngle;
     private float yLookAngle;
+
+    private float movement;
     //
 
     //inputs
@@ -41,7 +44,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
+        cam = transform.Find("Camera").gameObject;
         stateManager = GetComponent<PlayerStateManager>();
         if (stateManager == null) stateManager = gameObject.AddComponent<PlayerStateManager>();
 
@@ -57,27 +60,27 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 lookInput = -look.ReadValue<Vector2>();
 
-        yLookAngle = Mathf.Clamp(yLookAngle + lookInput.y * pitchLookSensitivity, -maxLookPitch, maxLookPitch);
-        xLookAngle -= lookInput.x * yawLookSensitivity;
+        yLookAngle = Mathf.Clamp(yLookAngle + lookInput.y * pitchLookSensitivity * Time.deltaTime, -maxLookPitch, maxLookPitch);
+        xLookAngle -= lookInput.x * yawLookSensitivity * Time.deltaTime;
 
-        rb.MoveRotation(Quaternion.Euler(
+        lookRot = Quaternion.Euler(
             yLookAngle,
             xLookAngle,
             0
-            ));
+            );
     }
 
     private void GetReqMoveDir()
     {
         Vector3 adjustedForward = transform.forward;
-        
+        float inputted = move.ReadValue<Vector2>().y;
 
-        targetDir = new Vector3(move.ReadValue<Vector2>().x * adjustedForward.x, 0, move.ReadValue<Vector2>().y * adjustedForward.z);
+        Quaternion rot = Quaternion.AngleAxis(xLookAngle, stateManager.groundUp);
+        adjustedForward = rot * adjustedForward;
+        adjustedForward.Normalize();
 
-        
 
-
-        
+        targetDir = adjustedForward * move.ReadValue<Vector2>().y;
     }
 
     // Update is called once per frame
@@ -89,6 +92,11 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         stateManager.checkGround();
-        GetReqMoveDir(); 
+
+
+        GetReqMoveDir();
+
+        rb.Move(transform.position + targetDir, Quaternion.identity);
+        cam.transform.rotation = lookRot;
     }
 }

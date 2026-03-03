@@ -22,15 +22,16 @@ public class PlayerStateManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        castFrom = transform.position - Vector3.up * (0.5f * transform.localScale.y);
+
+       if (castDist <= 0.001f) castDist = 5f;
     }
 
     public void checkGround() //must be called externally
     {
         RaycastHit hit;
-        grounded = Physics.Raycast(castFrom, Vector3.down, out hit, castDist);
+        grounded = Physics.Raycast(transform.position, Vector3.down, out hit, castDist, ~2);
 
-
+        //Debug.Log(hit.collider.gameObject.name);
         if (grounded) groundUp = hit.normal;
         else groundUp = Vector3.up;
 

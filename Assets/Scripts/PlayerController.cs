@@ -1,6 +1,7 @@
 using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float maxLookPitch;
 
-    [SerializeField] float slippyNess;
+    [SerializeField] float maxSlopeAngle;
     [SerializeField] float walkSpeed;
     [SerializeField] float jumpHeight;
     [SerializeField] float downForceWhileInAir;
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 heightFromCent;
     //
 
-
+    [SerializeField] GameObject[] objs;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -65,6 +66,8 @@ public class PlayerController : MonoBehaviour
 
         jump.started += Jump;
         jump.canceled += Jump;
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
     float jumpin = 0f;
     private void Jump(InputAction.CallbackContext inputAction)
@@ -153,8 +156,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        Vector3 ground= stateManager.checkGround();
-
+        Vector3 ground= stateManager.checkGround(maxSlopeAngle);
 
         GetReqMoveDir();
 
@@ -166,7 +168,7 @@ public class PlayerController : MonoBehaviour
 
             rb.AddForce(Vector3.up * jumpin, ForceMode.Impulse); // jumping
             rb.AddForce(newMovePos, ForceMode.Force); //moving 
-            Debug.Log(newMovePos);
+            
             rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.95f, rb.linearVelocity.y, rb.linearVelocity.z *0.95f);
         }
         else 
@@ -176,5 +178,16 @@ public class PlayerController : MonoBehaviour
         
 
         
+    }
+
+    public void Teleport(Vector3 pos)
+    {
+        if(Physics.OverlapCapsule(
+                pos + Vector3.up * 0.5f,
+                pos - Vector3.up * 0.5f,
+                0.5f, ~(1 << 2)).Length ==0 )
+        {
+            transform.position = pos;
+        }
     }
 }

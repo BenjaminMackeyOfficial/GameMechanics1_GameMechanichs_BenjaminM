@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,8 +14,12 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float maxLookPitch;
 
+    [SerializeField] float slippyNess;
     [SerializeField] float walkSpeed;
-    [SerializeField] float runSpeed;
+    [SerializeField] float jumpHeight;
+    [SerializeField] float downForceWhileInAir;
+
+    [SerializeField] float Bouncyness;
     //
 
     //movment vectors
@@ -36,9 +41,10 @@ public class PlayerController : MonoBehaviour
     private InputAction sprint;
     //
 
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    
+    //capsule colider stuff
+    private Vector3 heightFromCent;
+    //
 
 
     void Awake()
@@ -54,6 +60,23 @@ public class PlayerController : MonoBehaviour
         jump = inputActions.FindAction("Player/Jump");
         look = inputActions.FindAction("Player/Look");
         sprint = inputActions.FindAction("Player/Sprint");
+
+        heightFromCent =  Vector3.up * (transform.localScale.y / 4);
+
+        jump.started += Jump;
+        jump.canceled += Jump;
+    }
+    float jumpin = 0f;
+    private void Jump(InputAction.CallbackContext inputAction)
+    {
+        if(inputAction.ReadValue<float>() > 0f)
+        {
+            jumpin += jumpHeight * 10f;
+        }
+        else
+        {
+            jumpin = 0;
+        }
     }
 
     private void rotateForLook()
@@ -72,31 +95,86 @@ public class PlayerController : MonoBehaviour
 
     private void GetReqMoveDir()
     {
-        Vector3 adjustedForward = transform.forward;
+        Vector3 adjustedForward;
+        Vector3 adjustedRight;
+
         float inputted = move.ReadValue<Vector2>().y;
 
         Quaternion rot = Quaternion.AngleAxis(xLookAngle, stateManager.groundUp);
-        adjustedForward = rot * adjustedForward;
+        Quaternion rot2 = Quaternion.AngleAxis(xLookAngle + 90f, stateManager.groundUp);
+        adjustedForward = rot * transform.forward;
+        adjustedRight = rot2 * transform.forward;
+
         adjustedForward.Normalize();
+        adjustedRight.Normalize();
 
-
-        targetDir = adjustedForward * move.ReadValue<Vector2>().y;
+        targetDir = (adjustedForward * move.ReadValue<Vector2>().y) + 
+        (adjustedRight * move.ReadValue<Vector2>().x);
+        targetDir.Normalize();
     }
+
+
+    //outside vars for memory assignment
+    Vector3 sphere1 = Vector3.zero;
+    Vector3 sphere2 = Vector3.zero;
+    private bool CheckForCollisions(Vector3 dir, out RaycastHit hit)
+    {
+        sphere1 = transform.position + heightFromCent;
+        sphere2 = transform.position - heightFromCent;
+
+        return Physics.CapsuleCast(sphere1 , sphere2 , 0.5f, dir, out hit, walkSpeed * Time.deltaTime);
+    }
+    private bool CheckForCollisions(Vector3 dir)
+    {
+        sphere1 = transform.position + heightFromCent;
+        sphere2 = transform.position - heightFromCent;
+
+        return Physics.CapsuleCast(sphere1 , sphere2 , 0.5f, dir,walkSpeed * Time.deltaTime);
+    }
+    private Vector3 AdjustMoveDir(RaycastHit hit)
+    {
+        Vector3 returnVec = Vector3.Reflect(targetDir, hit.normal);
+
+        float speedLoss = Mathf.Abs((returnVec - targetDir).magnitude) * Bouncyness;
+
+        returnVec *= speedLoss;
+        //if(CheckForCollisions(returnVec)) return Vector3.zero;
+        return returnVec;
+    }
+
 
     // Update is called once per frame
     void Update()
     {
         rotateForLook();
+        cam.transform.rotation = lookRot;
     }
+
 
     void FixedUpdate()
     {
-        stateManager.checkGround();
+        Vector3 ground= stateManager.checkGround();
 
 
         GetReqMoveDir();
 
-        rb.Move(transform.position + targetDir, Quaternion.identity);
-        cam.transform.rotation = lookRot;
+        Vector3 newMovePos;
+        float velClamper = walkSpeed * Mathf.Clamp01(1f - (rb.linearVelocity.magnitude / walkSpeed));
+        if(stateManager.grounded) 
+        {
+            newMovePos = (targetDir * Time.deltaTime * velClamper * 10000f);
+
+            rb.AddForce(Vector3.up * jumpin, ForceMode.Impulse); // jumping
+            rb.AddForce(newMovePos, ForceMode.Force); //moving 
+            Debug.Log(newMovePos);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.95f, rb.linearVelocity.y, rb.linearVelocity.z *0.95f);
+        }
+        else 
+        {
+            rb.AddForce(Vector3.down * downForceWhileInAir * 100f);
+        }
+        
+
+        
     }
 }

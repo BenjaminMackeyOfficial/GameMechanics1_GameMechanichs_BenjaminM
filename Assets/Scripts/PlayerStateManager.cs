@@ -23,18 +23,19 @@ public class PlayerStateManager : MonoBehaviour
     void Start()
     {
 
-       if (castDist <= 0.001f) castDist = 5f;
+       if (castDist <= 0.001f) castDist = 0.52f;
     }
 
-    public void checkGround() //must be called externally
+    public Vector3 checkGround() //must be called externally
     {
         RaycastHit hit;
-        grounded = Physics.Raycast(transform.position, Vector3.down, out hit, castDist, ~2);
+        grounded = Physics.SphereCast(transform.position, transform.localScale.x/2,Vector3.down, out hit, castDist, ~2);
 
         //Debug.Log(hit.collider.gameObject.name);
         if (grounded) groundUp = hit.normal;
         else groundUp = Vector3.up;
 
+        return hit.point;
     }
    
 }

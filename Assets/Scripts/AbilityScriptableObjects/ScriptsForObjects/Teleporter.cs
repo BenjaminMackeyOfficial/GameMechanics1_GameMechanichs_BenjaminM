@@ -39,9 +39,13 @@ public class Teleporter : Ability
         green = new Color(0,255,0,60) /255;
 
     }
+    private bool _aiming = false;
     public override void Update()
     {
         if(parentObj == null) return;
+
+        if(!_aiming) playerPredict.SetActive(false);
+        else playerPredict.SetActive(true);
         RaycastHit hit1;
 
         if(!Physics.Raycast(parentObj.transform.position, parentCamera.transform.forward, out hit1, 1000f, ~(1 << 2))) 
@@ -51,7 +55,6 @@ public class Teleporter : Ability
             return;
         }
         
-        Debug.Log(hit1.collider.gameObject);
         playerPredict.transform.position = hit1.point + hit1.normal *1.2f;
 
         if(Physics.OverlapCapsule(
@@ -78,5 +81,18 @@ public class Teleporter : Ability
         //
 
         playerController.Teleport(pos);
+    }
+
+    public override void Abort()
+    {
+        _aiming = false;
+    }
+    public override void Aim()
+    {
+        _aiming = true;
+    }
+    public override void AbortAll()
+    {
+        playerPredict.SetActive(false);
     }
 }

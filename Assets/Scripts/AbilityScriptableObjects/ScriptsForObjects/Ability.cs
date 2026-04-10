@@ -7,4 +7,8 @@ public abstract class Ability : ScriptableObject
     public abstract void Initialize(GameObject parent);
     public abstract void Update();
     public abstract void Excecute();
+
+    public abstract void Aim();
+    public abstract void Abort();
+    public abstract void AbortAll();
 }

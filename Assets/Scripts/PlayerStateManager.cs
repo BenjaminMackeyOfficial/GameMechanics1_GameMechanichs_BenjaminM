@@ -7,7 +7,7 @@ public class PlayerStateManager : MonoBehaviour
     //states nd whatnot---------
     public bool grounded;
     public bool sprinting;
-
+    public bool dead;
     public Vector3 groundUp;
     //--------------------------
 
@@ -17,9 +17,6 @@ public class PlayerStateManager : MonoBehaviour
     [SerializeField] float castDist;
 
     
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
        if (castDist <= 0.001f) castDist = 0.52f;

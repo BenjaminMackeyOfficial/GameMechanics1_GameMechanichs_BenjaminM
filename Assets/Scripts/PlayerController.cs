@@ -72,7 +72,8 @@ public class PlayerController : MonoBehaviour
     float jumpin = 0f;
     private void Jump(InputAction.CallbackContext inputAction)
     {
-        if(inputAction.ReadValue<float>() > 0f)
+        if (stateManager.dead) return;
+        if (inputAction.ReadValue<float>() > 0f)
         {
             jumpin += jumpHeight * 10f;
         }
@@ -84,6 +85,7 @@ public class PlayerController : MonoBehaviour
 
     private void rotateForLook()
     {
+        if (stateManager.dead) return;
         Vector2 lookInput = -look.ReadValue<Vector2>();
 
         yLookAngle = Mathf.Clamp(yLookAngle + lookInput.y * pitchLookSensitivity * Time.deltaTime, -maxLookPitch, maxLookPitch);
@@ -156,6 +158,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (stateManager.dead) return;
         Vector3 ground= stateManager.checkGround(maxSlopeAngle);
 
         GetReqMoveDir();
@@ -180,7 +183,7 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    public void Teleport(Vector3 pos)
+    public bool Teleport(Vector3 pos)
     {
         if(Physics.OverlapCapsule(
                 pos + Vector3.up * 0.5f,
@@ -188,6 +191,8 @@ public class PlayerController : MonoBehaviour
                 0.5f, ~(1 << 2)).Length ==0 )
         {
             transform.position = pos;
+            return true;
         }
+        return false;
     }
 }

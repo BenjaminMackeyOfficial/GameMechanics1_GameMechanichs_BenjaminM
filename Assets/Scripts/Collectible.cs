@@ -15,7 +15,7 @@ public class Collectible : MonoBehaviour //would change to abstract in larger pr
     }
     private void Spin()
     {
-        childObj.transform.rotation *= Quaternion.Euler(Vector3.up * Time.deltaTime * 100);
+        childObj.transform.rotation *= Quaternion.Euler(Vector3.forward * Time.deltaTime * 100);
     }
     public void Collect()
     {

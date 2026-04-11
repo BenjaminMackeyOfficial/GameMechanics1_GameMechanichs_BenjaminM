@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1799a1c634b4b46ae4a5471f227ba4, type: 3}
-  m_Name: TeleportAbility
+  m_Script: {fileID: 11500000, guid: d832c27d6749cee4ab921f07d0aa27ec, type: 3}
+  m_Name: Gravity Bomb Ability
   m_EditorClassIdentifier: 
-  capsulePrefab: {fileID: 1646550307779705164, guid: 0b6b498d3de5076468af3b0e652f8fae, type: 3}
+  capsulePrefab: {fileID: 7467592756344255050, guid: 56d61c4f96e74a54999bb6b4f6d8c89a, type: 3}
+  Radius: 5
+  Force: 10

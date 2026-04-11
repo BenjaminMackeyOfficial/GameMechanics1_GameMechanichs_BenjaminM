@@ -74,6 +74,7 @@ public class MakeBall : Ability
     }
     public override void Excecute()
     {
+        if (!_aiming) return;
         if (!canTele) return;
         //any visuals
 

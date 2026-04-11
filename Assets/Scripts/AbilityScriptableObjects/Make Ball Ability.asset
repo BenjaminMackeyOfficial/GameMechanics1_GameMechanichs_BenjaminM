@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8972cbc1d54bb540a8b61dc682bcfc2, type: 3}
-  m_Name: MakeBallAbility
+  m_Name: Make Ball Ability
   m_EditorClassIdentifier: 
   capsulePrefab: {fileID: 7467592756344255050, guid: 56d61c4f96e74a54999bb6b4f6d8c89a, type: 3}
   ballToSpawnPrefab: {fileID: 7467592756344255050, guid: 2fe9be73b0d361c46a0cbfaa6ef24ff9, type: 3}

@@ -75,7 +75,8 @@ public class Teleporter : Ability
     }
     public override void Excecute()
     {
-        if(!canTele) return;
+        if (!_aiming) return;
+        if (!canTele) return;
         //any visuals
 
         //

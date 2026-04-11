@@ -63,6 +63,7 @@ public class GravityBomb : Ability
     }
     public override void Excecute()
     {
+        if (!_aiming) return;
         //any visuals
         //
         ApplyForce();

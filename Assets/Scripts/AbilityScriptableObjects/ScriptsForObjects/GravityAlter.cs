@@ -61,7 +61,6 @@ public class GravityAlter : Ability
         }
         else if (!hit1.collider.gameObject.CompareTag("Floor"))
         {
-            Debug.Log("yuh");
             if(highlightedObj != null)
             {
                 highlightedObj.GetComponent<Renderer>().material.color = heldMaterial;   

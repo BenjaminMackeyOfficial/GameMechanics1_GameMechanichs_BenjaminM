@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,8 +7,8 @@ using UnityEngine.InputSystem.LowLevel;
 
 public class AbilityManager : MonoBehaviour
 {
-
-
+    
+    PlayerController controller;
     [SerializeField] Ability[] AbilityPrefabs;
 
     private List<Ability> abilities;
@@ -24,6 +25,7 @@ public class AbilityManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        controller = GetComponent<PlayerController>();
         prev = inputActions.FindAction("Player/Previous");
         next = inputActions.FindAction("Player/Next");
         shoot = inputActions.FindAction("Player/Attack");
@@ -35,7 +37,6 @@ public class AbilityManager : MonoBehaviour
 
         aim.performed += Aim;
         aim.canceled += Aim;
-
 
         abilities = new List<Ability>();
         foreach (Ability item in AbilityPrefabs)
@@ -70,7 +71,19 @@ public class AbilityManager : MonoBehaviour
     {
         if (_aiming) return;
         activeAbility = abilities[changeTo];
+        UI.Instance.ChangeText("Current Ability: " + activeAbility.name.Split("(")[0]);
     }
+
+
+    //visuals
+    private float fov;
+    private float zoomFov;
+    private float prog;
+
+
+    private bool _animating;
+    
+    //
     // Update is called once per frame
     private void Shoot(InputAction.CallbackContext context)
     {
@@ -81,18 +94,24 @@ public class AbilityManager : MonoBehaviour
     {
         if (context.canceled)
         {
+            controller.ZoomOut();
             activeAbility.Abort();
             _aiming = false;
         }
         else
         {
+            controller.ZoomIn();
             _aiming = true;
             activeAbility.Aim();
         }
     }
-
+    private void Start()
+    {
+        UI.Instance.ChangeText("Current Ability: " + activeAbility.name.Split("(")[0]);
+    }
     void Update()
     {
+        
         activeAbility.Update();
     }
 }

@@ -1,4 +1,5 @@
 using System.Reflection.Emit;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -8,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private PlayerStateManager stateManager;
     private GameObject cam;
+    private Camera camCamera;
 
     //adjustables
     [SerializeField] float yawLookSensitivity;
@@ -151,11 +153,36 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //
+
+        prog = math.lerp(prog, targProg, 0.1f);
+        camCamera.fieldOfView = Mathf.Lerp(FOV, zoomInFov, prog);
+        //
         rotateForLook();
         cam.transform.rotation = lookRot;
     }
 
 
+
+    //
+    private float FOV = 90;
+    private float zoomInFov = 75;
+    private float prog = 0f;
+    private float targProg = 0f;
+
+    //
+    public void ZoomIn()
+    {
+        targProg = 1;
+    }
+    public void ZoomOut()
+    {
+        targProg = 0;
+    }
+    private void Start()
+    {
+        camCamera = cam.GetComponent<Camera>();
+    }
     void FixedUpdate()
     {
         if (stateManager.dead) return;
